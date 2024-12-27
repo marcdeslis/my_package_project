@@ -1,0 +1,1 @@
+from my_package_project import my_package_project

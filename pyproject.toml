@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "my_package_project"
+version = "0.0.0"
+description = "A package that I created for my Python project :)"
+authors = ["marcdeslis"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
