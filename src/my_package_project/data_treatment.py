@@ -16,9 +16,18 @@ logging.basicConfig(level=logging.INFO)
 
 UNIVERSE_SEC = list(StockMapper().ticker_to_cik.keys())
 
+def portfolio_volatility(portfolio: dict, information_set):
+        Sigma = information_set.get('covariance_matrix')
+        weights = np.array(list(portfolio.values()))
+        
+        # Compute portfolio variance and volatility
+        portfolio_variance = np.dot(weights.T, np.dot(Sigma, weights))
+        portfolio_volatility = np.sqrt(portfolio_variance)
+        return portfolio_volatility
+
+
 @dataclass 
 class RiskParity(Information):
-
     def compute_portfolio_riskparity(self, t: datetime, information_set):
         try:
             Sigma = information_set['covariance_matrix']
@@ -117,6 +126,9 @@ class RiskParity(Information):
             logging.warning(e)
             n_companies = len(information_set['companies'])
             return {k: leverage_factor / n_companies for k in information_set['companies']}
+    
+        
+    
 
             
 
