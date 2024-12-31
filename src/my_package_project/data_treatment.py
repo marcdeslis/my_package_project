@@ -25,6 +25,21 @@ def portfolio_volatility(portfolio: dict, information_set):
         portfolio_volatility = np.sqrt(portfolio_variance)
         return portfolio_volatility
 
+def compute_risk_contributions(portfolio: dict, information_set):
+        """
+        Computes the risk contributions for a given portfolio.
+        
+        Returns:
+            dict: A dictionary where keys are asset names and values are risk contributions.
+        """
+        Sigma = information_set['covariance_matrix']
+        weights = np.array(list(portfolio.values()))
+        portfolio_var = portfolio_volatility(portfolio, information_set)**2 # Portfolio variance
+        marginal_contrib = np.dot(Sigma, weights)  # Marginal contributions
+        risk_contrib = (weights * marginal_contrib) / portfolio_var   # Risk contributions
+
+        # Convert risk contributions into a dictionary
+        return {asset: round(risk_contrib[i], 3) for i, asset in enumerate(portfolio.keys())}
 
 @dataclass 
 class RiskParity(Information):

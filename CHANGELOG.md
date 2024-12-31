@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v0.2.0 (31-12-2024)
+
+## Features 
+
+* feat : add method to compute portfolio volatility (['65ac399'] https://github.com/marcdeslis/my_package_project/commit/65ac399c031bd5b8d062b54b8af0ca02fe10b688)
+
+
 ## v0.1.0 (28-12-2024)
 
 ## Features 
