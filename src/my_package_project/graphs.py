@@ -34,7 +34,7 @@ class PortfolioVisualizer:
         assets = list(self.portfolio.keys())
         weights = list(self.portfolio.values())
 
-        colors = ['#FFA500', '#32CD32', '#1F77B4', '#b41f49', '#f7cf07']  # Orange, Green, Blue, Yeallow, Red
+        colors = ['#1F77B4', '#b41f49', '#f7cf07', '#FFA500', '#32CD32']  
         extended_colors = colors * (len(assets) // len(colors)) + colors[:len(assets) % len(colors)]
 
         # Create an interactive bar chart
@@ -50,7 +50,7 @@ class PortfolioVisualizer:
 
         # Add layout details
         fig.update_layout(
-            title="Portfolio Weights",
+            title="Initial Risk Parity Portfolio Weights",
             xaxis_title="Assets",
             yaxis_title="Weights",
             xaxis=dict(tickmode='linear'),
@@ -61,11 +61,7 @@ class PortfolioVisualizer:
 
     def plot_risk_allocation_pie(self):
         """
-        Plots therisk allocation of a portfolio.
-
-        Args:
-            portfolio (dict): A dictionary where keys are asset names and values are weights.
-            information_set (dict): Contains the covariance matrix under 'covariance_matrix'.
+        Plots the risk allocation of a portfolio.
         """
         if not self.portfolio:
             raise ValueError("Portfolio is empty or invalid.")
@@ -77,7 +73,7 @@ class PortfolioVisualizer:
         assets = list(risk_contributions.keys())
         contributions = list(risk_contributions.values())
 
-        colors = ['#FFA500', '#32CD32', '#1F77B4', '#b41f49', '#f7cf07']  # Orange, Green, Blue, Yeallow, Red
+        colors = ['#1F77B4', '#b41f49', '#f7cf07', '#FFA500', '#32CD32'] 
         extended_colors = colors * (len(assets) // len(colors)) + colors[:len(assets) % len(colors)]
 
         # Create a pie chart
@@ -93,17 +89,61 @@ class PortfolioVisualizer:
 
         # Add layout details
         fig.update_layout(
-            title="Risk Allocation Pie Chart",
+            title="Risk Parity Allocation Pie Chart",
             template='plotly_white'
         )
         fig.show()
 
+@dataclass
+class PortfolioVisualizer_over_time:
+    portfolio_history: list  # List of dictionaries with portfolio weights over time
+    timestamps: list  # List of timestamps corresponding to portfolio weights
 
-       
+    def plot_portfolio_weights_over_time(self):
+        """
+        This function plots the portfolio weights over time.
+        """
+        if not self.portfolio_history or not self.timestamps:
+            raise ValueError("Portfolio history or timestamps are empty or invalid.")
 
+        # Ensure portfolio history matches timestamps
+        if len(self.portfolio_history) != len(self.timestamps):
+            raise ValueError("Portfolio history and timestamps length mismatch.")
+        
+        # Create a DataFrame to store weights over time
+        weights_df = pd.DataFrame(self.portfolio_history, index=pd.to_datetime(self.timestamps))
 
+        # Ensure column names are assets
+        weights_df.columns.name = "Assets"
 
+        # Define colors dynamically to match the number of assets
+        colors = ['#1F77B4', '#b41f49', '#f7cf07', '#FFA500', '#32CD32', '#9467BD', '#E377C2', '#8C564B', '#7F7F7F', '#BCBD22']
+        extended_colors = colors * (len(weights_df.columns) // len(colors)) + colors[:len(weights_df.columns) % len(colors)]
 
+        # Create an interactive stacked area chart
+        fig = go.Figure()
 
+        # Add each asset as a trace with its corresponding color
+        for asset, color in zip(weights_df.columns, extended_colors):
+            fig.add_trace(go.Scatter(
+                x=weights_df.index,
+                y=weights_df[asset],
+                mode='lines',
+                stackgroup='one',  # Enable stacking
+                name=asset,
+                line=dict(color=color)  # Apply color to each trace
+            ))
 
-    
+        # Add layout details
+        fig.update_layout(
+            title="Risk Parity Portfolio Weights Over Time",
+            xaxis_title="Date",
+            yaxis_title="Weights",
+            yaxis=dict(tickformat=".0%", range=[0, 1]),  # Percentage format and limit to [0, 1]
+            xaxis=dict(tickformat="%Y-%m-%d"),
+            legend_title="Assets",
+            width=900,  # Adjust width
+            height=500,  # Adjust height
+        )
+
+        fig.show()

@@ -17,6 +17,9 @@ logging.basicConfig(level=logging.INFO)
 UNIVERSE_SEC = list(StockMapper().ticker_to_cik.keys())
 
 def portfolio_volatility(portfolio: dict, information_set):
+        """
+        This function computes the volatility of a given portfolio.
+        """
         Sigma = information_set.get('covariance_matrix')
         weights = np.array(list(portfolio.values()))
         
@@ -28,7 +31,6 @@ def portfolio_volatility(portfolio: dict, information_set):
 def compute_risk_contributions(portfolio: dict, information_set):
         """
         Computes the risk contributions for a given portfolio.
-        
         Returns:
             dict: A dictionary where keys are asset names and values are risk contributions.
         """
@@ -44,6 +46,9 @@ def compute_risk_contributions(portfolio: dict, information_set):
 @dataclass 
 class RiskParity(Information):
     def compute_portfolio_riskparity(self, t: datetime, information_set):
+        """
+        This function computes the risk parity portfolio
+        """
         try:
             Sigma = information_set['covariance_matrix']
             n = len(Sigma)
@@ -84,6 +89,9 @@ class RiskParity(Information):
             
 
     def compute_portfolio_riskparity_voltarget_leverage(self, t: datetime, information_set, leverage_factor=1.0, target_volatility=0.1):
+        """
+        This function computes a risk parity portfolio with a target volatility and leverage factor.
+        """
         try:
             Sigma = information_set['covariance_matrix']
             n = len(Sigma)
