@@ -58,6 +58,7 @@ class PortfolioVisualizer:
             height=400,  # Adjust height
         )
         fig.show()
+        return fig
 
     def plot_risk_allocation_pie(self):
         """
@@ -93,6 +94,7 @@ class PortfolioVisualizer:
             template='plotly_white'
         )
         fig.show()
+        return fig
 
 @dataclass
 class PortfolioVisualizer_over_time:
@@ -147,6 +149,8 @@ class PortfolioVisualizer_over_time:
         )
 
         fig.show()
+        return fig
+
 
     
     def compute_annualized_returns(self, prices_history: pd.DataFrame):
@@ -237,6 +241,7 @@ class PortfolioVisualizer_over_time:
         )
 
         fig.show()
+        return fig
 
     def compute_annualized_volatility(self, prices_history: pd.DataFrame):
         """

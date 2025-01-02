@@ -3,7 +3,7 @@ import numpy as np
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-
+import plotly.express as px
 import os 
 import pickle
 from pybacktestchain.data_module import UNIVERSE_SEC, FirstTwoMoments, get_stocks_data, DataModule, Information
@@ -64,7 +64,10 @@ class Backtest_up:
                                     company_column=self.company_column,
                                     adj_close_column=self.adj_close_column)
         
-
+        # Prepare backtest folder
+        backtest_folder = os.path.join('backtests', self.backtest_name)
+        if not os.path.exists(backtest_folder):
+            os.makedirs(backtest_folder)
 
         # Run the backtest
         portfolio_history = []
@@ -90,19 +93,25 @@ class Backtest_up:
                 prices = info.get_prices(t)
                 self.broker.execute_portfolio(portfolio, prices, t)
         
-        #Plots of initial weights 
+        # Plots of initial weights & save the graph
         initial_visualization = PortfolioVisualizer(portfolio=initial_portfolio, information_set=information_0)
-        initial_visualization.plot_portfolio_weights() #initial weights
+        fig_weights = initial_visualization.plot_portfolio_weights()
+        weights_path = os.path.join(backtest_folder, 'initial_weights.png')
+        fig_weights.write_image(weights_path)
 
          # Compute risk contributions
         risk_contributions = compute_risk_contributions(portfolio=initial_portfolio,information_set= information_0)
         print(f"Risk Contributions: {risk_contributions}")
-        # Plot risk allocation pie chart
-        initial_visualization.plot_risk_allocation_pie()
+        # Plot risk allocation pie chart and save the graph
+        fig_risk=initial_visualization.plot_risk_allocation_pie()
+        risk_path = os.path.join(backtest_folder, 'risk_allocation_pie.png')
+        fig_risk.write_image(risk_path)
 
-        #Plot portfolio graphs over time
+        #Plot portfolio graphs over time and save it
         visualizer = PortfolioVisualizer_over_time(portfolio_history=portfolio_history, timestamps=timestamps)
-        visualizer.plot_portfolio_weights_over_time()
+        fig_weights_time = visualizer.plot_portfolio_weights_over_time()
+        weights_time_path = os.path.join(backtest_folder, 'weights_over_time.png')
+        fig_weights_time.write_image(weights_time_path)
 
         prices_history = df.pivot(index=self.time_column,columns=self.company_column,values=self.adj_close_column)
 
@@ -113,30 +122,57 @@ class Backtest_up:
         # Calculate annualized return
         annualized_return = visualizer.compute_annualized_returns(prices_history=prices_history)
         print(f"Annualized Return: {annualized_return:.2%}")    
-        visualizer.plot_portfolio_value_over_time(broker=self.broker, prices_history=prices_history)
 
+        #Plot the portfolio value over time
+        fig_portfolio_value = visualizer.plot_portfolio_value_over_time(broker=self.broker, prices_history=prices_history)
+        portfolio_value_path = os.path.join(backtest_folder, 'portfolio_value_over_time.png')
+        fig_portfolio_value.write_image(portfolio_value_path)
 
-        # Create backtests folder if it does not exist
-        if not os.path.exists('backtests'):
-            os.makedirs('backtests')
+        # save to csv, use the backtest name 
+        df = self.broker.get_transaction_log()
+        df.to_csv(os.path.join(backtest_folder, 'transaction_log.csv'))
 
         logging.info(f" Backtest completed. Final portfolio value: {self.broker.get_portfolio_value(info.get_prices(self.final_date))}")
 
-        df = self.broker.get_transaction_log()
 
-        # Create backtests folder if it does not exist
-        if not os.path.exists('backtests'):
-            os.makedirs('backtests')
+        #We create a jupyter notebook file in which we insert all the informations 
+
+        # Create Jupyter Notebook
+        notebook_path = os.path.join(backtest_folder, f"{self.backtest_name}.ipynb")
+        notebook = nbformat.v4.new_notebook()
         
+        # Add cells to the notebook
+        notebook['cells'] = [
+            nbformat.v4.new_markdown_cell("## <center> Backtest Results Notebook </center>"),
+            nbformat.v4.new_markdown_cell(f"Backtest Name: {self.backtest_name}"),
+            nbformat.v4.new_markdown_cell(f"Backtest Period: {self.initial_date.strftime('%Y-%m-%d')} to {self.final_date.strftime('%Y-%m-%d')}"),
+            nbformat.v4.new_markdown_cell(f"### Stocks Used in Backtest:\n- " + "\n- ".join(self.universe)),
+            nbformat.v4.new_markdown_cell("Initial Portfolio Weights"),
+            nbformat.v4.new_code_cell(f"from IPython.display import Image\nImage(filename='initial_weights.png')"),
+            nbformat.v4.new_markdown_cell("Risk Contributions Pie Chart"),
+            nbformat.v4.new_code_cell(f"Image(filename='risk_allocation_pie.png')"),
+            nbformat.v4.new_markdown_cell("Portfolio Weights Over Time"),
+            nbformat.v4.new_code_cell(f"Image(filename='weights_over_time.png')"),
+            nbformat.v4.new_markdown_cell(f"- **Annualized Volatility**: {ptf_vol:.2%}\n" 
+                                          f"- **Annualized Return**: {annualized_return:.2%}"),
+            nbformat.v4.new_markdown_cell("Portfolio Value Over Time"),
+            nbformat.v4.new_code_cell(f"Image(filename='portfolio_value_over_time.png')"),
+            nbformat.v4.new_markdown_cell("Transaction Log"),
+            nbformat.v4.new_code_cell(f"import pandas as pd\ndf = pd.read_csv('transaction_log.csv').drop(columns=['Unnamed: 0'])\ndf.head()")
+        ]
+
+        # Save the notebook
+        with open(notebook_path, 'w') as f:
+            nbformat.write(notebook, f)
+
+        return backtest_folder
 
 
 
-            
-
-    ### Prochaine étape : faire une fonction qui compute la performance du portfolio et la comparer avec les performance d'un 40/60
-    # fonction qui compute annualized return, volatility, sharpe ratio, 
-    ### output : créer un notebook et y mettre tout
-    ##Sharpe ratio pour comparer
+   
+    ### créer des fichier tests pour les fonctions de data_treatment et graphs, et operations
+    ## Faire le user guide
+    # Comparer avec un portfolio 40/60 ? 
         
 
 

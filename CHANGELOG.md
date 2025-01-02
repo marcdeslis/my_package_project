@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.0 (02-01-2025)
+
+## Features & Fixes
+* feat(operations) : add backtest_up method that enables to backtest a strategy on a given period
+* feat(graphs) : add a new method to compute the annualized volatility of a strategy
+* fix(graphs) : fix an error in the compute_annualized_return method 
+(['4882864']https://github.com/marcdeslis/my_package_project/commit/4882864b9c9a035dead78a82931d1604c30cbf8f)
+
+
+
 ## v0.5.0 (02-01-2025)
 
 ## Features 
