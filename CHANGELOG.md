@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (02-01-2025)
+
+## Features 
+* feat(graphs): add plot_portfolio_weights_over_time method (['3d7fd98'] https://github.com/marcdeslis/my_package_project/commit/3d7fd98e4b9af56b9e3dd07ad82b9b82555feac8)
+
+
 ## v0.3.0 (31-12-2024)
 
 ## Features 

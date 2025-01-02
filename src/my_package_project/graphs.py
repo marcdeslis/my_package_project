@@ -147,3 +147,94 @@ class PortfolioVisualizer_over_time:
         )
 
         fig.show()
+
+    
+    def compute_annualized_returns(self, prices_history: pd.DataFrame):
+        """
+        This method computes the annualized returns of the portfolio over time.
+        """
+        if not self.portfolio_history or not self.timestamps:
+            raise ValueError("Portfolio history or timestamps are empty or invalid.")
+        if prices_history is None or prices_history.empty:
+            raise ValueError("Prices history is empty or invalid.")
+
+        # Align weights and prices by ensuring timestamps match
+        weights_df = pd.DataFrame(self.portfolio_history, index=pd.to_datetime(self.timestamps))
+        common_dates = weights_df.index.intersection(prices_history.index)  # Find common dates
+        weights_df = weights_df.loc[common_dates]
+        prices_history = prices_history.loc[common_dates]
+
+        # Normalize prices to start at 1 
+        normalized_prices = prices_history / prices_history.iloc[0]
+
+        # Calculate daily portfolio returns
+        portfolio_returns = (weights_df * normalized_prices).sum(axis=1).pct_change()
+        portfolio_returns = portfolio_returns.dropna()
+
+        # Compute cumulative returns
+        cumulative_returns = (1 + portfolio_returns).cumprod()
+
+        # Annualized return = (Ending Value / Beginning Value)^(1/Years) - 1
+        total_days = (cumulative_returns.index[-1] - cumulative_returns.index[0]).days
+        total_years = total_days / 365.0
+        annualized_returns = (cumulative_returns.iloc[-1] / cumulative_returns.iloc[0]) ** (1 / total_years) - 1
+
+        return annualized_returns
+    
+    def plot_portfolio_value_over_time(self, broker: Broker, prices_history: pd.DataFrame):
+        """
+        This method computes and plots the portfolio value over time using the Broker class.
+
+        Args:
+            broker (Broker): An instance of the Broker class.
+            prices_history (pd.DataFrame): Historical prices of assets in the portfolio.
+        """
+        if not self.portfolio_history or not self.timestamps:
+            raise ValueError("Portfolio history or timestamps are empty or invalid.")
+        if prices_history is None or prices_history.empty:
+            raise ValueError("Prices history is empty or invalid.")
+        if broker is None:
+            raise ValueError("Broker instance is required.")
+
+        # Align weights and prices by ensuring timestamps match
+        weights_df = pd.DataFrame(self.portfolio_history, index=pd.to_datetime(self.timestamps))
+        common_dates = weights_df.index.intersection(prices_history.index)  # Find common dates
+        weights_df = weights_df.loc[common_dates]
+        prices_history = prices_history.loc[common_dates]
+
+        # Initialize portfolio values
+        portfolio_values = []
+
+        for date in common_dates:
+            # Get market prices for the date
+            market_prices = prices_history.loc[date].to_dict()
+
+            # Calculate portfolio value using the Broker class
+            portfolio_value = broker.get_portfolio_value(market_prices)
+            portfolio_values.append(portfolio_value)
+
+        # Create a DataFrame for visualization
+        portfolio_values_df = pd.DataFrame({
+            'Date': common_dates,
+            'Portfolio Value': portfolio_values
+        }).set_index('Date')
+
+        # Plot portfolio value over time
+        fig = go.Figure(data=go.Scatter(
+            x=portfolio_values_df.index,
+            y=portfolio_values_df['Portfolio Value'],
+            mode='lines',
+            name='Portfolio Value'
+        ))
+
+        fig.update_layout(
+            title="Portfolio Value Over Time",
+            xaxis_title="Date",
+            yaxis_title="Portfolio Value ($)",
+            xaxis=dict(tickformat="%Y-%m-%d"),
+            yaxis=dict(tickprefix="$"),
+            width=900,
+            height=500,
+        )
+
+        fig.show()

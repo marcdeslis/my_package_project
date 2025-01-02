@@ -87,16 +87,33 @@ class Backtest_up:
         visualizer = PortfolioVisualizer_over_time(portfolio_history=portfolio_history, timestamps=timestamps)
         visualizer.plot_portfolio_weights_over_time()  # Call the plotting method on the instance
 
+        prices_history = df.pivot(
+            index=self.time_column,
+            columns=self.company_column,
+            values=self.adj_close_column
+        )
+        
+        # Calculate annualized return
+        annualized_return = visualizer.compute_annualized_returns(prices_history=prices_history)
+        visualizer.plot_portfolio_value_over_time(broker=self.broker, prices_history=prices_history)
+        
+
         logging.info(f"Backtest completed. Final portfolio value: {self.broker.get_portfolio_value(info.get_prices(self.final_date))}")
+        logging.info(f"Annualized Return: {annualized_return:.2%}")
+
         df = self.broker.get_transaction_log()
 
         # Create backtests folder if it does not exist
         if not os.path.exists('backtests'):
             os.makedirs('backtests')
+        
+
+
+
             
 
     ### Prochaine étape : faire une fonction qui compute la performance du portfolio et la comparer avec les performance d'un 40/60
-    # fonction qui compute annualized return, volatility, sharpe ratio, max drawdown
+    # fonction qui compute annualized return, volatility, sharpe ratio, 
     ### output : créer un notebook et y mettre tout
     ##Sharpe ratio pour comparer
         
