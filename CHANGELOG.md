@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (02-01-2025)
+
+## Features 
+* feat(graphs): add compute_annualized_returns and plot_portfolio_value_over_time methods (['ac19a52'] https://github.com/marcdeslis/my_package_project/commit/ac19a52664396adfb24741b2ce9d3b4e23dcfa9a)
+
+
 ## v0.4.0 (02-01-2025)
 
 ## Features 

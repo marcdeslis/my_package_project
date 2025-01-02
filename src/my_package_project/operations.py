@@ -15,6 +15,7 @@ from my_package_project.data_treatment import portfolio_volatility, compute_risk
 from my_package_project.graphs import PortfolioVisualizer, PortfolioVisualizer_over_time
 
 from numba import jit 
+import nbformat
 
 
 # Setup logging
@@ -63,9 +64,12 @@ class Backtest_up:
                                     company_column=self.company_column,
                                     adj_close_column=self.adj_close_column)
         
+
+
         # Run the backtest
         portfolio_history = []
         timestamps = []
+        initial_portfolio = None
 
         for t in pd.date_range(start=self.initial_date, end=self.final_date, freq='D'):
             if self.risk_model is not None:
@@ -78,28 +82,45 @@ class Backtest_up:
                 logging.info(f"Rebalancing portfolio at {t}")
                 information_set = info.compute_information(t)
                 portfolio = info.compute_portfolio_riskparity(t, information_set)
+                if initial_portfolio is None:  # Capture initial weights
+                    initial_portfolio = portfolio
+                    information_0= information_set
                 timestamps.append(t)
                 portfolio_history.append(portfolio)
                 prices = info.get_prices(t)
                 self.broker.execute_portfolio(portfolio, prices, t)
-
-        # Create the visualizer with portfolio history and timestamps
-        visualizer = PortfolioVisualizer_over_time(portfolio_history=portfolio_history, timestamps=timestamps)
-        visualizer.plot_portfolio_weights_over_time()  # Call the plotting method on the instance
-
-        prices_history = df.pivot(
-            index=self.time_column,
-            columns=self.company_column,
-            values=self.adj_close_column
-        )
         
+        #Plots of initial weights 
+        initial_visualization = PortfolioVisualizer(portfolio=initial_portfolio, information_set=information_0)
+        initial_visualization.plot_portfolio_weights() #initial weights
+
+         # Compute risk contributions
+        risk_contributions = compute_risk_contributions(portfolio=initial_portfolio,information_set= information_0)
+        print(f"Risk Contributions: {risk_contributions}")
+        # Plot risk allocation pie chart
+        initial_visualization.plot_risk_allocation_pie()
+
+        #Plot portfolio graphs over time
+        visualizer = PortfolioVisualizer_over_time(portfolio_history=portfolio_history, timestamps=timestamps)
+        visualizer.plot_portfolio_weights_over_time()
+
+        prices_history = df.pivot(index=self.time_column,columns=self.company_column,values=self.adj_close_column)
+
+        # Calculate portfolio volatility
+        ptf_vol = visualizer.compute_annualized_volatility(prices_history=prices_history)
+        print(f"Portfolio Volatility: {ptf_vol:.2%}")
+
         # Calculate annualized return
         annualized_return = visualizer.compute_annualized_returns(prices_history=prices_history)
+        print(f"Annualized Return: {annualized_return:.2%}")    
         visualizer.plot_portfolio_value_over_time(broker=self.broker, prices_history=prices_history)
-        
 
-        logging.info(f"Backtest completed. Final portfolio value: {self.broker.get_portfolio_value(info.get_prices(self.final_date))}")
-        logging.info(f"Annualized Return: {annualized_return:.2%}")
+
+        # Create backtests folder if it does not exist
+        if not os.path.exists('backtests'):
+            os.makedirs('backtests')
+
+        logging.info(f" Backtest completed. Final portfolio value: {self.broker.get_portfolio_value(info.get_prices(self.final_date))}")
 
         df = self.broker.get_transaction_log()
 

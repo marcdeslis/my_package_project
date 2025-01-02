@@ -174,10 +174,9 @@ class PortfolioVisualizer_over_time:
         # Compute cumulative returns
         cumulative_returns = (1 + portfolio_returns).cumprod()
 
-        # Annualized return = (Ending Value / Beginning Value)^(1/Years) - 1
-        total_days = (cumulative_returns.index[-1] - cumulative_returns.index[0]).days
-        total_years = total_days / 365.0
-        annualized_returns = (cumulative_returns.iloc[-1] / cumulative_returns.iloc[0]) ** (1 / total_years) - 1
+         # Annualized return = (Ending Value / Beginning Value)^(12/Months) - 1
+        total_months = len(cumulative_returns) - 1  # Number of monthly periods
+        annualized_returns = (cumulative_returns.iloc[-1] / cumulative_returns.iloc[0]) ** (12 / total_months) - 1
 
         return annualized_returns
     
@@ -238,3 +237,32 @@ class PortfolioVisualizer_over_time:
         )
 
         fig.show()
+
+    def compute_annualized_volatility(self, prices_history: pd.DataFrame):
+        """
+        Computes the annualized volatility of the portfolio over time.
+        """
+        if not self.portfolio_history or prices_history.empty:
+            raise ValueError("Portfolio history or prices history is empty or invalid.")
+        
+        # Convert portfolio history to DataFrame
+        weights_df = pd.DataFrame(self.portfolio_history, index=pd.to_datetime(self.timestamps))
+        common_dates = weights_df.index.intersection(prices_history.index)  # Find common dates
+        weights_df = weights_df.loc[common_dates]
+        prices_history = prices_history.loc[common_dates]
+        
+        # Normalize prices to start at 1 
+        normalized_prices = prices_history / prices_history.iloc[0]
+
+        # Calculate daily portfolio returns
+        portfolio_returns = (weights_df * normalized_prices).sum(axis=1).pct_change()
+        portfolio_returns = portfolio_returns.dropna()
+
+        # Calculate daily volatility (standard deviation)
+        monthly_volatility = portfolio_returns.std() 
+
+        # Annualize volatility
+        annualized_volatility = monthly_volatility * np.sqrt(12)
+
+        return annualized_volatility
+
