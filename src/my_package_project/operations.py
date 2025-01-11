@@ -172,8 +172,11 @@ class Backtest_up:
    
     ### créer des fichier tests pour les fonctions de data_treatment et graphs, et operations
     ## Faire le user guide
+    ## Faire le README
+    #push sur pypi
     # Comparer avec un portfolio 40/60 ? 
-        
+
+
 
 
 

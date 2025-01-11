@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.1 (02-01-2025)
+
+## Fixes
+fix(operations): enables to save the backtest in a folder (['6f03b51'] https://github.com/marcdeslis/my_package_project/commit/6f03b51f169ec952db7dfc063308f9970956e11b)
+
 ## v1.0.0 (02-01-2025)
 
 ## Features & Fixes
