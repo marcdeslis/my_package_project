@@ -48,5 +48,3 @@ def test_compute_portfolio_riskparity():
     assert abs(sum(portfolio.values()) - 1.0) < 1e-6, "Portfolio weights should sum to 1."
     assert all(w >= 0 for w in portfolio.values()), "All portfolio weights should be non-negative."
 
-if __name__ == "__main__":
-    pytest.main()

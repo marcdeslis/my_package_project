@@ -123,6 +123,11 @@ class Backtest_up:
         annualized_return = visualizer.compute_annualized_returns(prices_history=prices_history)
         print(f"Annualized Return: {annualized_return:.2%}")    
 
+        # Calculate Sharpe Ratio
+        risk_free_rate = 0.02  # Example: 2% annual risk-free rate
+        sharpe_ratio = visualizer.compute_sharpe_ratio(prices_history=prices_history, risk_free_rate=risk_free_rate)
+        print(f"Sharpe Ratio: {sharpe_ratio:.2f}")
+
         #Plot the portfolio value over time
         fig_portfolio_value = visualizer.plot_portfolio_value_over_time(broker=self.broker, prices_history=prices_history)
         portfolio_value_path = os.path.join(backtest_folder, 'portfolio_value_over_time.png')
@@ -154,7 +159,8 @@ class Backtest_up:
             nbformat.v4.new_markdown_cell("Portfolio Weights Over Time"),
             nbformat.v4.new_code_cell(f"Image(filename='weights_over_time.png')"),
             nbformat.v4.new_markdown_cell(f"- **Annualized Volatility**: {ptf_vol:.2%}\n" 
-                                          f"- **Annualized Return**: {annualized_return:.2%}"),
+                                      f"- **Annualized Return**: {annualized_return:.2%}\n"
+                                      f"- **Sharpe Ratio**: {sharpe_ratio:.2f}"),
             nbformat.v4.new_markdown_cell("Portfolio Value Over Time"),
             nbformat.v4.new_code_cell(f"Image(filename='portfolio_value_over_time.png')"),
             nbformat.v4.new_markdown_cell("Transaction Log"),

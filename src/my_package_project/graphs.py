@@ -270,4 +270,36 @@ class PortfolioVisualizer_over_time:
         annualized_volatility = monthly_volatility * np.sqrt(12)
 
         return annualized_volatility
+    
+
+
+    def compute_sharpe_ratio(self, prices_history: pd.DataFrame, risk_free_rate: float = 0.02):
+        """
+        Computes the Sharpe Ratio of the portfolio over time using annualized return and volatility.
+
+        Args:
+            prices_history (pd.DataFrame): Historical prices of assets in the portfolio.
+            risk_free_rate (float): The annualized risk-free rate, default is 2% (0.02).
+
+        Returns:
+            float: The Sharpe Ratio of the portfolio.
+        """
+        if not self.portfolio_history or not self.timestamps:
+            raise ValueError("Portfolio history or timestamps are empty or invalid.")
+        if prices_history is None or prices_history.empty:
+            raise ValueError("Prices history is empty or invalid.")
+
+        # Use existing methods to compute annualized return and volatility
+        annualized_return = self.compute_annualized_returns(prices_history)
+        annualized_volatility = self.compute_annualized_volatility(prices_history)
+
+        # Compute excess return
+        excess_return = annualized_return - risk_free_rate
+
+        # Compute Sharpe Ratio
+        if annualized_volatility == 0:
+            raise ValueError("Annualized volatility is zero; Sharpe Ratio cannot be computed.")
+        sharpe_ratio = excess_return / annualized_volatility
+
+        return sharpe_ratio
 
