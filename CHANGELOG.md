@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.3.0 (14-01-2025)
+
+## Features
+feat : Added the README and example_of_usage files (['2509b74'] https://github.com/marcdeslis/my_package_project/commit/2509b7446fd65442a9ee2f228a081c957c3d1d13)
+
+
 ## v1.2.0 (11-01-2025)
 
 ## Features 
