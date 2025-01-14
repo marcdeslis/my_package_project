@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "my_package_project"
-version = "0.0.0"
+version = "1.2.0"
 description = "A package that I created for my Python project :)"
 authors = ["marcdeslis"]
 license = "MIT"
