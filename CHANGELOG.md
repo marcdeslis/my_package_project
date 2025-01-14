@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v1.2.0 (11-01-2025)
+
+## Features 
+feat(graphs): adding compute_sharpe_ratio method
+feat(test_graphs) : adding tests for graphs methods
+(['78da5a'] https://github.com/marcdeslis/my_package_project/commit/78da5a5a645067ac62f748cbe60c1298404066a8)
+
+
 ## v1.1.0 (11-01-2025)
 
 ## Features

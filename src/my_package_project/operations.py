@@ -35,7 +35,7 @@ class Backtest_up:
     company_column: str = 'ticker'
     adj_close_column : str ='Adj Close'
     rebalance_flag : type = EndOfMonth
-    risk_model : type = None #StopLoss
+    risk_model : type = None # or StopLoss
     initial_cash: int = 1000000  # Initial cash in the portfolio
     name_blockchain: str = 'backtest'
     verbose: bool = True
@@ -172,15 +172,8 @@ class Backtest_up:
             nbformat.write(notebook, f)
 
         return backtest_folder
-
-
-
-   
-    ### créer des fichier tests pour les fonctions de data_treatment et graphs, et operations
-    ## Faire le user guide
-    ## Faire le README
+    
     #push sur pypi
-    # Comparer avec un portfolio 40/60 ? 
 
 
 
